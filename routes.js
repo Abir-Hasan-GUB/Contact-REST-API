@@ -5,7 +5,8 @@ const {
     createContact,
     deleteContactById,
     updateContactById,
-    findContactById
+    findContactById,
+    deleteSingleItem
 } = require('./controllers')
 
 router.get('/', getAllContacts)
@@ -13,5 +14,7 @@ router.get('/:id', findContactById)
 router.post('/', createContact)
 router.delete('/:id', deleteContactById)
 router.put('/:id', updateContactById)
+router.get('/delete/:id', deleteSingleItem)
+
 
 module.exports = router

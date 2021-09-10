@@ -2,29 +2,55 @@ const Contact = require('./Contact')
 
 exports.getAllContacts = (req, res) => {
     Contact.find()
-        .then(c => {
-            c.length === 0 ? res.json({ msg: 'No contacts found' })
-                : res.json(c) // check database is empty or not
+        .then(contacts => {
+            // contact.length === 0 ? res.json({ msg: 'No contacts found' })
+            //     : res.json(contact) // check database is empty or not
+
+            res.render('index', { contacts })
         })
         .catch(err => res.json({ message: "Somthing Went wrong Please use valid url...!" }))
 }
 
 exports.createContact = (req, res) => {
-    let { name, email, phone } = req.body
-    let contact = new Contact({
-        name,
-        email,
-        phone
-    })
-    contact.save()
-        .then(c => {
-            res.send(c)
+    let { name, email, phone, id } = req.body
+
+    if (id) {
+        Contact.findOneAndUpdate(
+            { _id: id },
+            {
+                $set: {
+                    name, email, phone
+                }
+            }
+        )
+        .then(()=>{
+            Contact.find()
+                .then(contacts => {res.render('index', { contacts })})
+                .catch(e => {
+                    return res.json({
+                        message: 'Error Occurred'
+                    })
+                })
         })
-        .catch(e => {
-            return res.json({
-                message: 'Error Occurred'
+        
+    } else{
+        let contact = new Contact({
+            name,
+            email,
+            phone
+        })
+        contact.save()
+            .then(c => {
+                Contact.find()
+                    .then(contacts => res.render('index', { contacts }))
             })
-        })
+            .catch(e => {
+                return res.json({
+                    message: 'Error Occurred'
+                })
+            })
+    }
+  
 }
 
 exports.deleteContactById = (req, res) => {
@@ -34,6 +60,18 @@ exports.deleteContactById = (req, res) => {
             res.end(c)
         })
         .catch(err => { res.json({ message: err }) })
+}
+
+exports.deleteSingleItem = (req, res) => {
+    let id = req.params.id
+    Contact.findOneAndDelete({ id: id })
+        .then(() => {
+            Contact.find()
+                .then(contacts => res.render('index', { contacts }))
+        })
+        .catch(err => {
+            res.json({ message: err })
+        })
 }
 
 exports.updateContactById = (req, res) => {

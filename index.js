@@ -6,6 +6,7 @@ const router = require('./routes');
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.set('view engine', 'ejs');
 app.use(morgan('dev'));
 app.use('/contacts', router)
 
